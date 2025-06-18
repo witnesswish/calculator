@@ -33,6 +33,7 @@ jobs:
         host: linux
         target: android
         arch: armv7
+        mirror: 'https://download.qt.io'
 
     - name: Add Qt to PATH
       run: |

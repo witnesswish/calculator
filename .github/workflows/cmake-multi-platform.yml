@@ -28,7 +28,7 @@ jobs:
         version: ${{ env.QT_VERSION }}
         host: linux
         target: desktop
-        tools: true
+        #tools: true
       
     - name: Configure and build
       run: |
@@ -54,7 +54,7 @@ jobs:
         version: ${{ env.QT_VERSION }}
         host: windows
         target: desktop
-        tools: true
+        #tools: true
       
     - name: Configure and build
       run: |
@@ -91,7 +91,7 @@ jobs:
         target: android
         android-ndk: ${{ env.ANDROID_NDK_VERSION }}
         android-sdk: ${{ env.ANDROID_SDK_VERSION }}
-        tools: true
+        #tools: true
       
     - name: Configure and build Android APK
       run: |

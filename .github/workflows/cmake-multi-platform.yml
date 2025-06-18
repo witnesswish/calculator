@@ -98,15 +98,18 @@ jobs:
     
     - name: Configure and build Android APK
       run: |
-        pwd
-        ls -la
+        #pwd
+        #ls -la
+        rm -rf build/android
         mkdir -p build/android && cd build/android
-        pwd
-        ls
-        ls -la ../
-        ls -la ../../
-        echo "检查CMakeLists.txt位置:"
-        ls -la ../../
+        # 显式指定NDK工具链（不使用Qt自带的）
+        export ANDROID_TOOLCHAIN_FILE=$ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake
+        #pwd
+        #ls
+        #ls -la ../
+        #ls -la ../../
+        #echo "检查CMakeLists.txt位置:"
+        #ls -la ../../
         if [ ! -f ../../CMakeLists.txt ]; then
         echo "错误：找不到CMakeLists.txt!"
         exit 1
@@ -123,7 +126,11 @@ jobs:
           -DCMAKE_C_COMPILER=$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang \
           -DCMAKE_CXX_COMPILER=$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang++ \
           -DCMAKE_BUILD_TYPE=Release \
-          ../..
+          --no-warn-unused-cli
+
+        # 显示最终采用的配置
+        cmake -L . | grep -E 'ANDROID|QT|CMAKE'
+        
         cmake --build . --config Release --parallel $(nproc)
       
     - name: Archive APK

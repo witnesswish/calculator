@@ -102,9 +102,19 @@ jobs:
         ls -la
         mkdir -p build/android && cd build/android
         pwd
+        ls
+        ls -la ../
         ls -la ../../
+        echo "检查CMakeLists.txt位置:"
+        ls -la ../../
+        if [ ! -f ../../CMakeLists.txt ]; then
+        echo "错误：找不到CMakeLists.txt!"
+        exit 1
+        fi
         cmake \
           -GNinja \
+          -S ../.. \  # 显式指定源代码目录
+          -B . \      # 显式指定构建目录
           -DCMAKE_SYSTEM_NAME=Android \
           -DCMAKE_ANDROID_NDK=$ANDROID_NDK_ROOT \
           -DCMAKE_ANDROID_ARCH_ABI=arm64-v8a \

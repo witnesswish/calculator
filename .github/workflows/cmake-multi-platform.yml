@@ -81,7 +81,7 @@ jobs:
         distribution: 'temurin'
       
     - name: Set up Android SDK and NDK
-      uses: android-actions/setup-android@v4
+      uses: android-actions/setup-android@v3.2.1
       
     - name: Set up Qt for Android
       uses: jurplel/install-qt-action@v4

@@ -98,8 +98,11 @@ jobs:
     
     - name: Configure and build Android APK
       run: |
-        mkdir -p build/android
-        cd build/android
+        pwd
+        ls -la
+        mkdir -p build/android && cd build/android
+        pwd
+        ls -la ../../
         cmake \
           -GNinja \
           -DCMAKE_SYSTEM_NAME=Android \

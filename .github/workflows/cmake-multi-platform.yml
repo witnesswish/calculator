@@ -104,17 +104,13 @@ jobs:
       run: |
         rm -rf build/android
         mkdir -p build/android && cd build/android
-        if [ ! -f ../../CMakeLists.txt ]; then
-        echo "错误：找不到CMakeLists.txt!"
-        exit 1
-        fi
         cmake \
           -GNinja \
           -S ../.. \  # 显式指定源代码目录
           -B . \      # 显式指定构建目录
           -DCMAKE_SYSTEM_NAME=Android \
           -DCMAKE_ANDROID_NDK=$ANDROID_NDK_ROOT \
-          -DCMAKE_ANDROID_ARCH_ABI="arm64-v8a" \
+          -DCMAKE_ANDROID_ARCH_ABI="armeabi-v7a" \
           -DCMAKE_ANDROID_STL_TYPE=c++_shared \
           -DQT_HOST_PATH=$QT_HOST_DIR \
           -DCMAKE_TOOLCHAIN_FILE=$QT_DIR/lib/cmake/Qt6/qt.toolchain.cmake \

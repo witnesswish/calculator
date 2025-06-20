@@ -29,6 +29,8 @@ jobs:
     - name: Fix icu
       run: |
         whereis libicuuc.so
+        whereis libicu.so
+        export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
 
     - name: Set up JDK
       uses: actions/setup-java@v3

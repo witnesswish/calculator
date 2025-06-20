@@ -31,6 +31,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y \
           libicu-dev
+        sudo ln -s /usr/lib/x86_64-linux-gnu/libicui18n.so /usr/lib/x86_64-linux-gnu/libicui18n.so.73
 
     - name: Set up JDK
       uses: actions/setup-java@v3

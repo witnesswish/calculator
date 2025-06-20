@@ -69,6 +69,7 @@ jobs:
     - name: Set up Envrimoent and build Android APK
       run: |
         echo $PATH
+        ldd /home/runner/work/calculator/calculator/6.9.0/gcc_64/libexec/uic | grep icu
         export QT_ANDROID=/home/runner/work/calculator/calculator/6.9.0/android_armv7
         export PATH=$JAVA_HOME/bin:$ANDROID_SDK_ROOT/tools:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_NDK_ROOT:$PATH
         rm -rf build

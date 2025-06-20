@@ -48,13 +48,11 @@ jobs:
       run: |
         pip install aqtinstall==3.3.0
         aqt install-qt linux desktop ${{env.QT_VERSION}} linux_gcc_64 \
-        -m qtcharts qtquick3d \
-          --archives qtbase qtsvg qtdeclarative
-          --moduleset qtstatic
+        -m qtcharts qtquick3d qtstatic \
+          --archives qtbase qtsvg qtdeclarative 
         aqt install-qt linux android ${{env.QT_VERSION}} android_armv7 \
-          -m qtcharts qtquick3d \
+          -m qtcharts qtquick3d qtstatic \
           --archives qtbase qtsvg qtdeclarative
-          --moduleset qtstatic
         aqt list-tool linux android
         sudo apt-get update
 

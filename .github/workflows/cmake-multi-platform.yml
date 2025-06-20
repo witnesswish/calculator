@@ -32,7 +32,7 @@ jobs:
         whereis libicui18n.so
         sudo ln -s /usr/lib/x86_64-linux-gnu/libicuuc.so.74 /usr/lib/x86_64-linux-gnu/libicuuc.so.73
         sudo ln -s /usr/lib/x86_64-linux-gnu/libicui18n.so.74 /usr/lib/x86_64-linux-gnu/libicui18n.so.73
-        sudo ln -s /usr/lib/x86_64-linux-gnu/libicudata.so.76 /usr/lib/x86_64-linux-gnu/libicudata.so.73
+        sudo ln -s /usr/lib/x86_64-linux-gnu/libicudata.so.74 /usr/lib/x86_64-linux-gnu/libicudata.so.73
         sudo ldconfig
 
     - name: Set up JDK

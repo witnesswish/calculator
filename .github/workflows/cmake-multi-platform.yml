@@ -31,13 +31,14 @@ jobs:
         whereis libicuuc.so
         whereis libicui18n.so
         whereis libicudata.so
-        wget https://github.com/unicode-org/icu/releases/download/release-73-2/icu4c-73_2-src.tgz
-        tar xzf icu4c-73_2-src.tgz
-        cd icu/source
-        ./configure --prefix=/usr/local
-        make -j$(nproc)
-        sudo make install
-        cd ../..
+        sudo cp /usr/lib/x86_64-linux-gnu/* /usr/lib/ -f
+        #wget https://github.com/unicode-org/icu/releases/download/release-73-2/icu4c-73_2-src.tgz
+        #tar xzf icu4c-73_2-src.tgz
+        #cd icu/source
+        #./configure --prefix=/usr/local
+        #make -j$(nproc)
+        #sudo make install
+        #cd ../..
 
     - name: Set up JDK
       uses: actions/setup-java@v3

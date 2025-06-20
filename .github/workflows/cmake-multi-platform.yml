@@ -31,15 +31,18 @@ jobs:
         whereis libicuuc.so
         whereis libicui18n.so
         whereis libicudata.so
-        sudo cp /usr/lib/x86_64-linux-gnu/*.so.* /usr/lib/
-        sudo cp /usr/lib/x86_64-linux-gnu/*.so /usr/lib/
-        #wget https://github.com/unicode-org/icu/releases/download/release-73-2/icu4c-73_2-src.tgz
-        #tar xzf icu4c-73_2-src.tgz
-        #cd icu/source
-        #./configure --prefix=/usr/local
-        #make -j$(nproc)
-        #sudo make install
-        #cd ../..
+        #sudo cp /usr/lib/x86_64-linux-gnu/*.so.* /usr/lib/
+        #sudo cp /usr/lib/x86_64-linux-gnu/*.so /usr/lib/
+        wget https://github.com/unicode-org/icu/releases/download/release-73-2/icu4c-73_2-src.tgz
+        tar xzf icu4c-73_2-src.tgz
+        cd icu/source
+        ./configure --prefix=/usr/local
+        make -j$(nproc)
+        sudo make install
+        cd ../..
+        whereis libicuuc.so.73
+        whereis libicui18n.so.73
+        whereis libicudata.so.73
 
     - name: Set up JDK
       uses: actions/setup-java@v3
@@ -49,9 +52,6 @@ jobs:
       
     - name: Set up Android SDK and NDK
       uses: android-actions/setup-android@v3
-      with:
-        ndk-version: ${{ env.ANDROID_NDK_VERSION }}
-        sdk-packages: ${{ env.ANDROID_SDK_PACKAGES }}
       
     - name: Set up Qt for Android
       run: |

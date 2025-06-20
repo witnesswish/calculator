@@ -28,12 +28,10 @@ jobs:
 
     - name: Fix icu
       run: |
-        whereis libicuuc.so
-        whereis libicui18n.so
+        whereis libicuuc.so.73
+        whereis libicui18n.so.73
         sudo apt-get update
-        sudo apt-get search libicu
-        sudo apt-get install -y libicu74
-        export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
+        sudo apt-get install -y libicu73
 
     - name: Set up JDK
       uses: actions/setup-java@v3

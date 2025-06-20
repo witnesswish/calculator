@@ -59,18 +59,10 @@ jobs:
 
     - name: Set up Envrimoent and build Android APK
       run: |
-        pwd
-        java -version
-        echo $JAVA_HOME
-        echo $ANDROID_SDK_ROOT
-        echo $ANDROID_NDK_ROOT
-        echo $QT_ANDROID
-        echo $PATH
-        echo $ANDROID_HOME
         export QT_ANDROID=/home/runner/work/calculator/calculator/6.9.0/android_armv7
-        export PATH=$ANDROID_SDK_ROOT/tools:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_NDK_ROOT:$PATH
-        ls 6.9.0/
-        mkdir -p build && cd build
+        export PATH=$JAVA_HOME/bin:$ANDROID_SDK_ROOT/tools:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_NDK_ROOT:$PATH
+        mkdir -p build
+        cd build
         cmake .. \
           -DCMAKE_SYSTEM_NAME=Android \
           -DCMAKE_SYSTEM_VERSION=23 \

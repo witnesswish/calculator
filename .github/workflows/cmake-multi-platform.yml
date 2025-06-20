@@ -30,7 +30,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y \
-          libicu-dev
+          libicu-dev \
           libicu
         if ! dpkg -l | grep -q libicu73; then
           wget http://security.ubuntu.com/ubuntu/pool/main/i/icu/libicu73_73.2-6ubuntu2_amd64.deb

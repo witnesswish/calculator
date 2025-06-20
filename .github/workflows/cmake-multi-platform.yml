@@ -48,12 +48,12 @@ jobs:
       run: |
         pip install aqtinstall==3.3.0
         aqt install-qt linux desktop ${{env.QT_VERSION}} linux_gcc_64 \
-        -m qtcharts qtquick3d qtstatic \
+        -m qtcharts qtquick3d \
           --archives qtbase qtsvg qtdeclarative 
         aqt install-qt linux android ${{env.QT_VERSION}} android_armv7 \
-          -m qtcharts qtquick3d qtstatic \
+          -m qtcharts qtquick3d \
           --archives qtbase qtsvg qtdeclarative
-        aqt list-tool linux android
+        aqt list-qt linux desktop --modules 6.9.0 <arch>
         sudo apt-get update
 
     #- name: Install Ninja

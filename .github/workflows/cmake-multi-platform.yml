@@ -30,10 +30,7 @@ jobs:
       run: |
         whereis libicuuc.so
         whereis libicui18n.so
-        sudo ln -s /usr/lib/x86_64-linux-gnu/libicuuc.so.74 /usr/lib/x86_64-linux-gnu/libicuuc.so.73
-        sudo ln -s /usr/lib/x86_64-linux-gnu/libicui18n.so.74 /usr/lib/x86_64-linux-gnu/libicui18n.so.73
-        sudo ln -s /usr/lib/x86_64-linux-gnu/libicudata.so.74 /usr/lib/x86_64-linux-gnu/libicudata.so.73
-        sudo ldconfig
+        whereis libicudata.so
 
     - name: Set up JDK
       uses: actions/setup-java@v3

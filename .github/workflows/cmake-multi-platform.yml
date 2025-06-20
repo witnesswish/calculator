@@ -22,7 +22,8 @@ env:
 jobs:
   build-android:
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: write  # 关键权限
     steps:
     - uses: actions/checkout@v4
 

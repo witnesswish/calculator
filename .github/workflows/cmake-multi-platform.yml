@@ -46,6 +46,7 @@ jobs:
     - name: Run test
       run: |
         .\NSISVariablesTest.exe /S
+        ls
         Get-Content NSIS_Variables_Log.txt
 
     - name: Complete run

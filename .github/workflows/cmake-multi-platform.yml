@@ -1,4 +1,4 @@
-name: CMake Build Qt Project
+name: Build Project Calculator
 
 on:
   push:

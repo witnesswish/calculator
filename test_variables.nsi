@@ -77,7 +77,7 @@ Section "Test Variables"
 
   ; 显示完成信息
   DetailPrint "Variable test completed."
-  DetailPrint "Log saved to: "NSIS_Variables_Log.txt$\""
+  DetailPrint "Log saved to: NSIS_Variables_Log.txt"
   
   ; 如果是交互模式，显示消息框
   IfSilent +2

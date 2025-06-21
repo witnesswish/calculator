@@ -33,7 +33,7 @@ Section "Test Variables"
   StrCpy $SystemPath "$SYSDIR"
 
   ; 创建日志文件
-  FileOpen $0 "NSIS_Variables_Log.txt" w
+  FileOpen $0 ".\NSIS_Variables_Log.txt" w
   FileWrite $0 "=== NSIS Variables Test Log ===$\r$\n"
   FileWrite $0 "Generated at: [$\"$%TIME%$\" on $\"$%DATE%$\"]$\r$\n$\r$\n"
   

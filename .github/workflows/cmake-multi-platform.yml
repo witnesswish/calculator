@@ -2,17 +2,15 @@ name: CMake Build Qt Project
 
 on:
   push:
-    branches: [ master ]
-    #tags: 
-      #- "v*"
+    #branches: [ master ]
+    tags: 
+      - "v*"
   #pull_request:
     #branches: [ master ]
 
 env:
-  # Qt 版本
   QT_VERSION: "6.9.0"
-  #ANDROID_NDK_VERSION: '26.1.10909125'  # Android NDK 版本
-  #ANDROID_SDK_VERSION: '19.0'       # Android SDK 版本
+  #ANDROID_SDK_VERSION: '19.0'
   ANDROID_API: 23
   ANDROID_NDK_VERSION: 26.1.10909125
   ANDROID_ABI: armeabi-v7a
@@ -20,10 +18,46 @@ env:
   ANDROID_SDK_PACKAGES: "platforms;android-33,build-tools;34.0.0,cmdline-tools;latest,platform-tools,ndk;$ANDROID_NDK_VERSION"
 
 jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4
+      
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential libgl1-mesa-dev
+        
+    - name: Set up Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: ${{ env.QT_VERSION }}
+        host: linux
+        target: desktop
+      
+    - name: Configure and build
+      run: |
+        mkdir -p build/linux
+        cd build/linux
+        cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ../..
+        cmake --build . --config Release --parallel $(nproc)
+        
+    - name: Varify files
+      run:
+        ls build/linux
+
+    - name: Release
+      uses: softprops/action-gh-release@v2.3.2
+      with:
+        tag_name: ${{ github.ref_name }}
+        files: build/linux/calculator
+
   build-windows:
     runs-on: windows-latest
     permissions:
-      contents: write  # 关键权限
+      contents: write
     steps:
     - uses: actions/checkout@v4
 
@@ -49,61 +83,88 @@ jobs:
     - name: Verify files and Get Qt dependencies
       shell: powershell
       run: |
-        #ls
-        $QT_BIN = "$env:QT_PATH/bin"
+        #$QT_BIN = "$env:QT_PATH/bin"
         & "windeployqt.exe" `
           --release `
           --no-compiler-runtime `
           --dir installer `
           "build/windows/Release/calculator.exe"
         Copy-Item "build/windows/Release/calculator.exe" installer
-        #ls installer
-          # 验证文件存在
-          if (-not (Test-Path "installer/calculator.exe")) {
-          Write-Error "calculator.exe not found in installer directory!"
-          Get-ChildItem -Path installer -Recurse
-          exit 1
-        }
+        #Get-ChildItem -Path installer -Recurse
 
     - name: Pack up installer
       run: |
         makensis -V4 MakeInstaller.nsi
-        ls
-        ls installer
 
     - name: Release
       uses: softprops/action-gh-release@v2.3.2
       with:
-        # Note-worthy description of changes in release
-        body: # optional
-        # Path to load note-worthy description of changes in release from
-        body_path: # optional
-        # Gives the release a custom name. Defaults to tag name
-        name: # optional
-        # Gives a tag name. Defaults to github.ref_name
         tag_name: ${{ github.ref_name }}
-        # Creates a draft release. Defaults to false
-        draft: # optional
-        # Identify the release as a prerelease. Defaults to false
-        prerelease: # optional
-        # Preserver the order of the artifacts when uploading
-        preserve_order: # optional
-        # Newline-delimited list of path globs for asset files to upload
-        #files: build/windows/Release/calculator.exe
         files: D:/a/calculator/calculator/CalculatorSetup64.exe
-        # Fails if any of the `files` globs match nothing. Defaults to false
-        fail_on_unmatched_files: # optional
-        # Repository to make releases against, in <owner>/<repo> format
-        repository: # optional
-        # Authorized secret GitHub Personal Access Token. Defaults to github.token
-        #token: # optional, default is $-{{ github.token }}
-        # Commitish value that determines where the Git tag is created from. Can be any branch or commit SHA.
-        target_commitish: # optional
-        # If specified, a discussion of the specified category is created and linked to the release. The value must be a category that already exists in the repository. If there is already a discussion linked to the release, this parameter is ignored.
-        discussion_category_name: # optional
-        # Whether to automatically generate the name and body for this release. If name is specified, the specified name will be used; otherwise, a name will be automatically generated. If body is specified, the body will be pre-pended to the automatically generated notes.
-        generate_release_notes: true
-        # Append to existing body instead of overwriting it. Default is false.
-        append_body: # optional
-        # Specifies whether this release should be set as the latest release for the repository. Drafts and prereleases cannot be set as latest. Can be `true`, `false`, or `legacy`. Uses GitHub api default if not provided
-        make_latest: true
+
+  build-android:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4
+
+    # I don not know, it is neccessary because qt need it, at least at this time
+    - name: Fix icu first
+      run: |
+        wget https://github.com/unicode-org/icu/releases/download/release-73-2/icu4c-73_2-src.tgz
+        tar xzf icu4c-73_2-src.tgz
+        cd icu/source
+        ./configure --prefix=/usr/local
+        make -j$(nproc)
+        sudo make install
+        sudo ldconfig
+        cd ../..
+
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+      
+    - name: Set up Android SDK and NDK
+      uses: android-actions/setup-android@v3
+      
+    - name: Set up Qt for Android
+      run: |
+        #It is a problem here, try to fix it on other day
+        pip install aqtinstall==3.3.0
+        aqt install-qt linux desktop ${{env.QT_VERSION}} linux_gcc_64 \
+        -m qtcharts qtquick3d \
+          --archives qtbase qtsvg qtdeclarative 
+        aqt install-qt linux android ${{env.QT_VERSION}} android_armv7 \
+          -m qtcharts qtquick3d \
+          --archives qtbase qtsvg qtdeclarative
+
+    - name: Set up Envrimoent and build Android APK
+      run: |
+        export QT_ANDROID=/home/runner/work/calculator/calculator/6.9.0/android_armv7
+        export PATH=$JAVA_HOME/bin:$ANDROID_SDK_ROOT/tools:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_NDK_ROOT:$PATH
+        rm -rf build
+        mkdir -p build
+        cd build
+        cmake .. \
+          -DCMAKE_SYSTEM_NAME=Android \
+          -DCMAKE_SYSTEM_VERSION=23 \
+          -DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a \
+          -DCMAKE_ANDROID_NDK=$ANDROID_NDK_ROOT \
+          -DCMAKE_ANDROID_SDK=$ANDROID_SDK_ROOT \
+          -DCMAKE_ANDROID_STL_TYPE=c++_shared \
+          -DQT_HOST_PATH=/home/runner/work/calculator/calculator/6.9.0/gcc_64 \
+          -DCMAKE_PREFIX_PATH=$QT_ANDROID \
+          -DCMAKE_TOOLCHAIN_FILE=$QT_ANDROID/lib/cmake/Qt6/qt.toolchain.cmake \
+          -G Ninja
+        cmake --build . --parallel 4
+        ninja apk
+        mv /home/runner/work/calculator/calculator/build/android-build//build/outputs/apk/debug/android-build-debug.apk /home/runner/work/calculator/calculator/build/android-build//build/outputs/apk/debug/calculator.apk
+
+    - name: Release
+      uses: softprops/action-gh-release@v2.3.2
+      with:
+        tag_name: ${{ github.ref_name }}
+        files: /home/runner/work/calculator/calculator/build/android-build//build/outputs/apk/debug/calculator.apk

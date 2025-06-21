@@ -2,11 +2,11 @@ name: CMake Build Qt Project
 
 on:
   push:
-    branches: [ master ]
-    #tags: 
-      #- "v*"
-  pull_request:
-    branches: [ master ]
+    #branches: [ master ]
+    tags: 
+      - "v*"
+  #pull_request:
+    #branches: [ master ]
 
 env:
   # Qt 版本

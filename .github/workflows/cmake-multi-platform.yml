@@ -2,9 +2,9 @@ name: CMake Build Qt Project
 
 on:
   push:
-    #branches: [ master ]
-    tags: 
-      - "v*"
+    branches: [ master ]
+    #tags: 
+      #- "v*"
   #pull_request:
     #branches: [ master ]
 
@@ -20,86 +20,36 @@ env:
   ANDROID_SDK_PACKAGES: "platforms;android-33,build-tools;34.0.0,cmdline-tools;latest,platform-tools,ndk;$ANDROID_NDK_VERSION"
 
 jobs:
-  build-linux:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write  # 关键权限
-    steps:
-    - uses: actions/checkout@v4
-      
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential libgl1-mesa-dev
-        
-    - name: Set up Qt
-      uses: jurplel/install-qt-action@v4
-      with:
-        version: ${{ env.QT_VERSION }}
-        host: linux
-        target: desktop
-        #tools: true
-      
-    - name: Configure and build
-      run: |
-        mkdir -p build/linux
-        cd build/linux
-        cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ../..
-        cmake --build . --config Release --parallel $(nproc)
-        
-    #- name: Archive artifacts
-      #uses: actions/upload-artifact@v4
-      #with:
-        #name: linux-build
-        #path: build/linux/
-
-    - name: Varify files
-      run:
-        ls build/linux
-
-    - name: Release
-      uses: softprops/action-gh-release@v2.3.2
-      with:
-        # Note-worthy description of changes in release
-        body: # optional
-        # Path to load note-worthy description of changes in release from
-        body_path: # optional
-        # Gives the release a custom name. Defaults to tag name
-        name: # optional
-        # Gives a tag name. Defaults to github.ref_name
-        tag_name: ${{ github.ref_name }}
-        # Creates a draft release. Defaults to false
-        draft: # optional
-        # Identify the release as a prerelease. Defaults to false
-        prerelease: # optional
-        # Preserver the order of the artifacts when uploading
-        preserve_order: # optional
-        # Newline-delimited list of path globs for asset files to upload
-        files: build/linux/calculator
-        # Fails if any of the `files` globs match nothing. Defaults to false
-        fail_on_unmatched_files: # optional
-        # Repository to make releases against, in <owner>/<repo> format
-        repository: # optional
-        # Authorized secret GitHub Personal Access Token. Defaults to github.token
-        #token: # optional, default is $-{{ github.token }}
-        # Commitish value that determines where the Git tag is created from. Can be any branch or commit SHA.
-        target_commitish: # optional
-        # If specified, a discussion of the specified category is created and linked to the release. The value must be a category that already exists in the repository. If there is already a discussion linked to the release, this parameter is ignored.
-        discussion_category_name: # optional
-        # Whether to automatically generate the name and body for this release. If name is specified, the specified name will be used; otherwise, a name will be automatically generated. If body is specified, the body will be pre-pended to the automatically generated notes.
-        generate_release_notes: true
-        # Append to existing body instead of overwriting it. Default is false.
-        append_body: # optional
-        # Specifies whether this release should be set as the latest release for the repository. Drafts and prereleases cannot be set as latest. Can be `true`, `false`, or `legacy`. Uses GitHub api default if not provided
-        make_latest: true
-
   build-windows:
     runs-on: windows-latest
     permissions:
       contents: write  # 关键权限
     steps:
     - uses: actions/checkout@v4
-      
+
+    - name: Set up NSIS
+      shell: powershell
+      run: choco install nsis -y --no-progress
+    - name: Verify NSIS
+      run: makensis /VERSION
+
+    - name: Generate NSIS script
+      #shell: powershell
+      run: |
+        Out-File -FilePath test_variables.nsi -Encoding UTF8 -InputObject (Get-Content -Path test_variables.nsi -Raw)
+
+    - name: Compile test script
+      run: makensis -V4 test_variables.nsi
+
+    - name: Run test
+      run: |
+        .\NSISVariablesTest.exe /S
+        Get-Content NSIS_Variables_Log.txt
+
+    - name: Complete run
+      run: |
+        exit 1
+
     - name: Set up Qt
       id: setup-qt
       uses: jurplel/install-qt-action@v4
@@ -107,19 +57,6 @@ jobs:
         version: ${{ env.QT_VERSION }}
         host: windows
         target: desktop
-        #tools: true
-
-    - name: Get Qt Path (Debug)
-      shell: powershell
-      run: |
-        echo "QT_PATH from action: "${{ steps.setup-qt.outputs.qt-path }}".Replace('\', '/')
-        echo "QT_BIN from action: "${{ steps.setup-qt.outputs.qt-bin }}".Replace('\', '/')
-        $QT_BIN = "${{ steps.setup-qt.outputs.qt-bin }}".Replace('\', '/')
-        #echo "QT_BIN=$QT_BIN" >> $env:GITHUB_ENV
-
-    - name: Set up NSIS
-      shell: powershell
-      run: choco install nsis-unicode -y
       
     - name: Configure and build
       run: |
@@ -127,12 +64,6 @@ jobs:
         cd build/windows
         cmake -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release ../..
         cmake --build . --config Release
-      
-    #- name: Archive artifacts
-      #uses: actions/upload-artifact@v4
-      #with:
-        #name: windows-build
-        #path: build/windows/
 
     - name: Verify files and Deploy Qt dependencies
       shell: powershell
@@ -239,121 +170,6 @@ jobs:
         # Newline-delimited list of path globs for asset files to upload
         #files: build/windows/Release/calculator.exe
         files: D:/a/calculator/calculator/installer/claculatorInstaller.exe
-        # Fails if any of the `files` globs match nothing. Defaults to false
-        fail_on_unmatched_files: # optional
-        # Repository to make releases against, in <owner>/<repo> format
-        repository: # optional
-        # Authorized secret GitHub Personal Access Token. Defaults to github.token
-        #token: # optional, default is $-{{ github.token }}
-        # Commitish value that determines where the Git tag is created from. Can be any branch or commit SHA.
-        target_commitish: # optional
-        # If specified, a discussion of the specified category is created and linked to the release. The value must be a category that already exists in the repository. If there is already a discussion linked to the release, this parameter is ignored.
-        discussion_category_name: # optional
-        # Whether to automatically generate the name and body for this release. If name is specified, the specified name will be used; otherwise, a name will be automatically generated. If body is specified, the body will be pre-pended to the automatically generated notes.
-        generate_release_notes: true
-        # Append to existing body instead of overwriting it. Default is false.
-        append_body: # optional
-        # Specifies whether this release should be set as the latest release for the repository. Drafts and prereleases cannot be set as latest. Can be `true`, `false`, or `legacy`. Uses GitHub api default if not provided
-        make_latest: true
-
-  build-android:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write  # 关键权限
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Fix icu
-      run: |
-        whereis libicuuc.so
-        whereis libicui18n.so
-        whereis libicudata.so
-        #sudo cp /usr/lib/x86_64-linux-gnu/*.so.* /usr/lib/
-        #sudo cp /usr/lib/x86_64-linux-gnu/*.so /usr/lib/
-        wget https://github.com/unicode-org/icu/releases/download/release-73-2/icu4c-73_2-src.tgz
-        tar xzf icu4c-73_2-src.tgz
-        cd icu/source
-        ./configure --prefix=/usr/local
-        make -j$(nproc)
-        sudo make install
-        sudo ldconfig
-        cd ../..
-        whereis libicuuc.so.73.2
-        whereis libicui18n.so.73
-        whereis libicudata.so.73
-
-    - name: Set up JDK
-      uses: actions/setup-java@v3
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-      
-    - name: Set up Android SDK and NDK
-      uses: android-actions/setup-android@v3
-      
-    - name: Set up Qt for Android
-      run: |
-        pip install aqtinstall==3.3.0
-        aqt install-qt linux desktop ${{env.QT_VERSION}} linux_gcc_64 \
-        -m qtcharts qtquick3d \
-          --archives qtbase qtsvg qtdeclarative 
-        aqt install-qt linux android ${{env.QT_VERSION}} android_armv7 \
-          -m qtcharts qtquick3d \
-          --archives qtbase qtsvg qtdeclarative
-
-    #- name: Install Ninja
-      #run: sudo apt-get install -y ninja-build
-
-    - name: Set up Envrimoent and build Android APK
-      run: |
-        echo $PATH
-        ldd /home/runner/work/calculator/calculator/6.9.0/gcc_64/libexec/uic | grep icu
-        export QT_ANDROID=/home/runner/work/calculator/calculator/6.9.0/android_armv7
-        export PATH=$JAVA_HOME/bin:$ANDROID_SDK_ROOT/tools:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_NDK_ROOT:$PATH
-        rm -rf build
-        mkdir -p build
-        cd build
-        cmake .. \
-          -DCMAKE_SYSTEM_NAME=Android \
-          -DCMAKE_SYSTEM_VERSION=23 \
-          -DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a \
-          -DCMAKE_ANDROID_NDK=$ANDROID_NDK_ROOT \
-          -DCMAKE_ANDROID_SDK=$ANDROID_SDK_ROOT \
-          -DCMAKE_ANDROID_STL_TYPE=c++_shared \
-          -DQT_HOST_PATH=/home/runner/work/calculator/calculator/6.9.0/gcc_64 \
-          -DCMAKE_PREFIX_PATH=$QT_ANDROID \
-          -DCMAKE_TOOLCHAIN_FILE=$QT_ANDROID/lib/cmake/Qt6/qt.toolchain.cmake \
-          -G Ninja
-        cmake --build . --parallel 4
-        ninja apk
-
-
-    #- name: Archive APK
-    #  uses: actions/upload-artifact@v4
-    #  with:
-    #    name: android-apk
-    #    path: build/android/*.apk
-
-    - name: Release
-      uses: softprops/action-gh-release@v2.3.2
-      with:
-        # Note-worthy description of changes in release
-        body: # optional
-        # Path to load note-worthy description of changes in release from
-        body_path: # optional
-        # Gives the release a custom name. Defaults to tag name
-        name: # optional
-        # Gives a tag name. Defaults to github.ref_name
-        tag_name: ${{ github.ref_name }}
-        # Creates a draft release. Defaults to false
-        draft: # optional
-        # Identify the release as a prerelease. Defaults to false
-        prerelease: # optional
-        # Preserver the order of the artifacts when uploading
-        preserve_order: # optional
-        # Newline-delimited list of path globs for asset files to upload
-        #files: build/windows/Release/calculator.exe
-        files: /home/runner/work/calculator/calculator/build/android-build//build/outputs/apk/debug/android-build-debug.apk
         # Fails if any of the `files` globs match nothing. Defaults to false
         fail_on_unmatched_files: # optional
         # Repository to make releases against, in <owner>/<repo> format

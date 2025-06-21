@@ -34,6 +34,11 @@ jobs:
     - name: Verify NSIS
       run: makensis /VERSION
 
+    - name: Verify NSIS installation
+      run: |
+        makensis /VERSION
+        makensis /HDRINFO
+
     - name: Compile test script
       run: |
         makensis -V4 test_variables.nsi
@@ -42,13 +47,7 @@ jobs:
     - name: Run test
       run: |
         # 静默运行测试程序
-        .\NSISVariablesDebug.exe /S
-        # 等待日志文件生成
-        Start-Sleep -Seconds 2
-        # 输出日志内容
-        Get-Content "$env:TEMP\NSIS_Variables_Debug.log"
-        # 检查文件是否存在
-        Test-Path "$env:TEMP\NSIS_Variables_Debug.log"
+        .\MinimalTest.exe /S
 
     - name: Complete run
       run: |

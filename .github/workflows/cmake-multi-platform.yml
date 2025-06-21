@@ -30,13 +30,9 @@ jobs:
     - name: Set up NSIS
       shell: powershell
       run: choco install nsis -y --no-progress
+
     - name: Verify NSIS
       run: makensis /VERSION
-
-    - name: Generate NSIS script
-      #shell: powershell
-      run: |
-        Out-File -FilePath test_variables.nsi -Encoding UTF8 -InputObject (Get-Content -Path test_variables.nsi -Raw)
 
     - name: Compile test script
       run: |
@@ -45,9 +41,14 @@ jobs:
 
     - name: Run test
       run: |
-        .\NSISVariablesTest.exe /S
-        ls
-        Get-Content NSIS_Variables_Log.txt
+        # 静默运行测试程序
+        .\NSISVariablesDebug.exe /S
+        # 等待日志文件生成
+        Start-Sleep -Seconds 2
+        # 输出日志内容
+        Get-Content "$env:TEMP\NSIS_Variables_Debug.log"
+        # 检查文件是否存在
+        Test-Path "$env:TEMP\NSIS_Variables_Debug.log"
 
     - name: Complete run
       run: |

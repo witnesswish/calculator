@@ -39,7 +39,9 @@ jobs:
         Out-File -FilePath test_variables.nsi -Encoding UTF8 -InputObject (Get-Content -Path test_variables.nsi -Raw)
 
     - name: Compile test script
-      run: makensis -V4 test_variables.nsi
+      run: |
+        makensis -V4 test_variables.nsi
+        ls
 
     - name: Run test
       run: |

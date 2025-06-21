@@ -1,5 +1,5 @@
 name: CMake Build Qt Project
-
+#only debug version
 on:
   push:
     #branches: [ master ]

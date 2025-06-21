@@ -38,7 +38,6 @@ jobs:
         version: ${{ env.QT_VERSION }}
         host: windows
         target: desktop
-        #tools: true
       
     - name: Configure and build
       run: |

@@ -26,5 +26,6 @@ Section "Uninstall"
   Delete "$SMPROGRAMS\calculator\calculator.lnk"
   Delete "$SMPROGRAMS\calculator\Uninstall.lnk"
   RMDir "$SMPROGRAMS\calculator"
-  RMDir "$INSTDIR"
+  RMDir /r "$INSTDIR"
+  SetAutoClose true
 SectionEnd

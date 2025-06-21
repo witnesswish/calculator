@@ -30,16 +30,47 @@ jobs:
     - name: Set up NSIS
       shell: powershell
       run: choco install nsis -y --no-progress
-
-    - name: Verify NSIS installation
+      
+    - name: Set up Qt
+      id: setup-qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: ${{ env.QT_VERSION }}
+        host: windows
+        target: desktop
+        #tools: true
+      
+    - name: Configure and build
       run: |
-        makensis /VERSION
-        makensis /HDRINFO
+        mkdir build/windows
+        cd build/windows
+        cmake -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release ../..
+        cmake --build . --config Release
 
-    - name: Compile test script
+    - name: Verify files and Get Qt dependencies
+      shell: powershell
       run: |
-        makensis -V4 test_variables.nsi
+        #ls
+        $QT_BIN = "$env:QT_PATH/bin"
+        & "windeployqt.exe" `
+          --release `
+          --no-compiler-runtime `
+          --dir installer `
+          "build/windows/Release/calculator.exe"
+        Copy-Item "build/windows/Release/calculator.exe" installer
+        #ls installer
+          # 验证文件存在
+          if (-not (Test-Path "installer/calculator.exe")) {
+          Write-Error "calculator.exe not found in installer directory!"
+          Get-ChildItem -Path installer -Recurse
+          exit 1
+        }
+
+    - name: Pack up installer
+      run: |
+        makensis -V4 MakeInstaller.nsi
         ls
+        ls installer
 
     - name: Release
       uses: softprops/action-gh-release@v2.3.2

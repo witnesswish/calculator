@@ -91,7 +91,7 @@ jobs:
         preserve_order: # optional
         # Newline-delimited list of path globs for asset files to upload
         #files: build/windows/Release/calculator.exe
-        files: D:/a/calculator/calculator/hello_liam_setup.exe
+        files: D:/a/calculator/calculator/CalculatorSetup64.exe
         # Fails if any of the `files` globs match nothing. Defaults to false
         fail_on_unmatched_files: # optional
         # Repository to make releases against, in <owner>/<repo> format

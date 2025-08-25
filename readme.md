@@ -1,5 +1,4 @@
-A Qt calculator gui project.
+一个Qt开发的计算器，功能不完善，很多bug
 
-Addition, SubTraction, Multiplication, Division is enabled.
+熟悉github aciton，发布构建
 
-Integer, Decimal is enabled.
